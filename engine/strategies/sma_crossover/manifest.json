@@ -1,0 +1,44 @@
+{
+  "title": "SMA Crossover (demo)",
+  "symbol": "DEMO",
+  "timezone": "America/New_York",
+  "timezone_label": "ET",
+  "bar_minutes": 5,
+  "market_table": "bars",
+  "columns": {
+    "ts": "ts",
+    "price": "price",
+    "open": "is_open",
+    "source": "source",
+    "closed_reason": "closed_reason"
+  },
+  "params": [
+    {"key": "fast", "default": 20, "step": 1, "min": 2, "max": 200,
+     "label": "Fast SMA", "title": "Length of the fast simple moving average, in bars."},
+    {"key": "slow", "default": 60, "step": 1, "min": 3, "max": 400,
+     "label": "Slow SMA", "title": "Length of the slow simple moving average, in bars."},
+    {"key": "rsi_filter", "default": "off", "choices": ["off", "on"],
+     "label": "RSI filter", "title": "Only take entries that RSI agrees with."},
+    {"key": "rsi_period", "default": 14, "step": 1, "min": 2, "max": 100,
+     "label": "RSI period", "title": "Lookback for RSI, in bars."},
+    {"key": "rsi_overbought", "default": 70, "step": 1, "min": 50, "max": 95,
+     "label": "RSI overbought", "title": "Block new longs when RSI is at or above this."},
+    {"key": "rsi_oversold", "default": 30, "step": 1, "min": 5, "max": 50,
+     "label": "RSI oversold", "title": "Block new shorts when RSI is at or below this."},
+    {"key": "allow_short", "default": "yes", "choices": ["yes", "no"],
+     "label": "Allow shorts", "title": "Trade the short side as well as the long side."},
+    {"key": "exec_lag", "default": 5, "step": 5, "min": 0, "max": 60,
+     "label": "Execution lag (min)", "title": "Delay between a signal and its fill, in minutes (a multiple of the bar size)."},
+    {"key": "bps", "default": 2, "step": 0.5, "min": 0, "max": 50,
+     "label": "Cost (bps)", "title": "Trading cost per unit of turnover, in basis points."}
+  ],
+  "param_groups": [
+    {"title": "Signal", "keys": ["fast", "slow"]},
+    {"title": "Filters", "keys": ["rsi_filter", "rsi_period", "rsi_overbought", "rsi_oversold", "allow_short"]},
+    {"title": "Execution & costs", "keys": ["exec_lag", "bps"]}
+  ],
+  "data_tables": [
+    {"table": "holidays", "key": "day",
+     "columns": {"day": "text", "label": "text"}}
+  ]
+}

@@ -1,0 +1,58 @@
+/* Strategy view styling (loaded by the app with ui.js). Uses the app's theme
+   variables (--panel, --border, --muted, --up, --down, --accent, ...).
+
+   Scoped to a neutral .strat-ui class — applied by ui.js to the containers it
+   mounts into — so nothing here names or reveals the strategy. */
+
+.strat-ui {
+  /* Optional: define local scope variables if needed */
+}
+
+/* ---------------- Price vs revenue chart ---------------- */
+/* The chart sits in the app's Live chart card (legend, subtitle and stat in
+   its head); only the tooltip lines are this view's own. */
+.strat-ui .strat-tip .tip-price { color: var(--text); font-weight: 700; }
+.strat-ui .strat-tip .tip-rev { color: #c8a6f7; font-weight: 700; margin-left: 8px; }
+.strat-ui .strat-tip .tip-time { color: var(--muted); margin-left: 8px; }
+
+/* ---------------- Forecasts (Data input tab) ---------------- */
+.strat-ui .fc-msg { flex: 1; font-size: 12.5px; color: var(--muted); }
+.strat-ui .fc-msg.err { color: var(--down); }
+.strat-ui .fc-msg.ok { color: var(--up); }
+.strat-ui .fc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; align-items: start; }
+.strat-ui .fc-contents { display: contents; }
+.strat-ui .fc-cell { display: flex; flex-direction: column; gap: 6px; }
+.strat-ui .fc-lbl { font-size: 12px; color: var(--muted); }
+.strat-ui .fc-lbl em { font-style: normal; opacity: .75; }
+.strat-ui .fc-in {
+  background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+  border-radius: var(--r-ctl); padding: 8px 10px; width: 100%; font-variant-numeric: tabular-nums;
+}
+.strat-ui .fc-in:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(76, 154, 255, .18); }
+.strat-ui .fc-ins { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.strat-ui .fc-ins .fc-in { text-align: right; }
+.strat-ui .fc-actions { display: flex; align-items: center; gap: 12px; margin-top: 18px; }
+
+.strat-ui .data-table th.fc-grp { text-align: center; }
+.strat-ui .data-table th.fc-grp span { font-weight: 400; }
+.strat-ui .data-table .fc-gstart { border-left: 1px solid var(--border); }
+.strat-ui .data-table td.fc-ts, .strat-ui .data-table td.fc-lo { color: var(--muted); }
+.strat-ui .data-table td.fc-avg { color: var(--text); font-weight: 600; }
+.strat-ui .fc-acts { white-space: nowrap; }
+.strat-ui .fc-acts button {
+  background: var(--panel-2); border: 1px solid var(--border); color: var(--muted);
+  width: 26px; height: 26px; border-radius: var(--r-ctl); cursor: pointer; font-size: 13px; line-height: 1; margin-left: 4px;
+}
+.strat-ui .fc-acts .fc-edit:hover { color: var(--accent); border-color: var(--accent); }
+.strat-ui .fc-acts .fc-del:hover { color: var(--down); border-color: var(--down); }
+
+/* ---------------- Price / revenue vs base (a tile beside the signal) ---------------- */
+.strat-ui .strat-mvb { border-collapse: collapse; }
+.strat-ui .strat-mvb th { font-size: 10px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .4px;
+  text-align: right; padding: 0 0 3px 10px; white-space: nowrap; }
+.strat-ui .strat-mvb th:first-child { text-align: left; padding-left: 0; }
+.strat-ui .strat-mvb td { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right;
+  padding: 1px 0 1px 10px; white-space: nowrap; }
+.strat-ui .strat-mvb td:first-child { font-size: 11.5px; font-weight: 400; color: var(--muted); text-align: left; padding-left: 0; }
+.strat-ui .strat-mvb td.up { color: var(--up); }
+.strat-ui .strat-mvb td.down { color: var(--down); }

@@ -1,0 +1,11 @@
+{
+  "fast": 20,
+  "slow": 60,
+  "rsi_filter": "off",
+  "rsi_period": 14,
+  "rsi_overbought": 70,
+  "rsi_oversold": 30,
+  "allow_short": "yes",
+  "exec_lag": 5,
+  "bps": 2
+}

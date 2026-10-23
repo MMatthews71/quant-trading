@@ -1,0 +1,450 @@
+:root {
+  --bg: #0d1117;
+  --panel: #161b22;
+  --panel-2: #1c2330;
+  --border: #2a3340;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --accent: #4c9aff;
+  --up: #2ec27e;
+  --down: #f0616d;
+  --amber: #e3b341;
+  --r-panel: 12px;
+  --r-tile: 10px;
+  --r-ctl: 6px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.45 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+body { display: flex; flex-direction: column; }
+
+/* Scrollbars in the app's palette: a slim rounded thumb on a clear track,
+   brightening on hover, instead of the platform's light default. */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--border); border-radius: 8px;
+  border: 2px solid transparent; background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: #3d4a5c; }
+::-webkit-scrollbar-thumb:active { background-color: var(--muted); }
+::-webkit-scrollbar-button { display: none; }
+
+/* ---------------- Top bar + tabs ---------------- */
+.topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 14px; height: 42px; flex: 0 0 auto;
+  background: var(--panel); border-bottom: 1px solid var(--border);
+}
+.brand { font-weight: 700; letter-spacing: .3px; color: var(--text); font-size: 14px; }
+.tabs { display: flex; gap: 4px; }
+.tab {
+  background: transparent; border: none; color: var(--muted);
+  padding: 8px 14px; border-radius: var(--r-ctl); cursor: pointer; font-size: 13px;
+}
+.tab:hover { color: var(--text); background: var(--panel-2); }
+.tab.active { color: var(--text); background: var(--panel-2); box-shadow: inset 0 -2px 0 var(--accent); }
+.topbar .tab { font-weight: 700; font-size: 14px; }
+/* The sub-tabs share the top bar with the strategy tab. */
+.topbar-sep { width: 1px; height: 18px; background: var(--border); }
+.topbar .subtabs .tab { font-weight: 400; font-size: 13px; padding: 6px 12px; }
+
+/* The strategy's sub-tabs (Live / Backtest / Input / Log), under the top bar. */
+.subbar {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 4px;
+  padding: 6px 18px; background: var(--bg); border-bottom: 1px solid var(--border);
+}
+.subbar .tab { padding: 6px 12px; }
+
+/* ---------------- Panes + page headers ---------------- */
+.tabpane { display: none; flex: 1 1 auto; min-height: 0; flex-direction: column; padding: 18px 20px; }
+.tabpane.active { display: flex; }
+
+/* Every tab opens with the same titled header, so they read as one program. */
+.page-head {
+  flex: 0 0 auto; display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 16px; margin-bottom: 16px;
+}
+.page-titles { min-width: 0; }
+.page-title { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: .2px; color: var(--text); }
+.page-sub { margin: 3px 0 0; font-size: 12.5px; color: var(--muted); }
+
+/* Scroll container for form-and-content tabs (Live / Backtest / Data input). */
+.pane-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 6px; }
+
+/* ---------------- Controls ---------------- */
+.controls { flex: 0 0 auto; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.ctl { display: flex; align-items: center; gap: 6px; color: var(--muted); }
+.ctl span { font-size: 12px; }
+.autoscroll { margin-left: auto; }
+
+/* ---------------- Buttons ---------------- */
+button.primary, button.danger, button.ghost {
+  border: 1px solid var(--border); border-radius: var(--r-ctl); padding: 8px 16px;
+  cursor: pointer; background: var(--panel-2); color: var(--text); font-size: 13px;
+}
+button.primary { background: var(--accent); border-color: var(--accent); color: #08111f; font-weight: 600; }
+button.danger { color: var(--down); border-color: #43303a; }
+button.ghost { color: var(--muted); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:hover:not(:disabled) { filter: brightness(1.08); }
+
+/* Secondary action inside a panel/section (Refresh, Export …). */
+.btn-secondary {
+  border: 1px solid var(--border); border-radius: var(--r-ctl); padding: 6px 13px;
+  cursor: pointer; background: var(--panel-2); color: var(--text);
+  font-size: 12px; font-weight: 600;
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+.hidden, [hidden] { display: none !important; }
+
+/* ---------------- Panels (shared framed container) ---------------- */
+.panel {
+  position: relative; margin-bottom: 14px; padding: 16px 18px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--r-panel);
+}
+.panel-head {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--border);
+}
+.panel-title { font-size: 13px; font-weight: 700; letter-spacing: .2px; color: var(--text); }
+/* the status message fills the middle; a trailing button sits on the right */
+.panel-head .bt-dim { flex: 1; font-size: 11.5px; }
+.bt-dim { color: var(--muted); font-weight: 400; }
+.bt-dim.err { color: var(--down); }
+
+/* ---------------- Section label ---------------- */
+.section-label {
+  flex: 0 0 auto;
+  font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
+  color: var(--muted); margin: 20px 2px 10px;
+}
+
+/* ---------------- Hero chart card ---------------- */
+.hero {
+  flex: 1 1 auto; min-height: 240px;
+  display: flex; flex-direction: column;
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--r-panel);
+  padding: 14px 16px 10px;
+}
+.hero-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 6px; }
+.hero-titles { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.hero-title { font-weight: 700; font-size: 15px; color: var(--text); }
+.hero-sub { font-size: 12px; color: var(--muted); }
+.hero-stat { display: flex; align-items: baseline; gap: 12px; white-space: nowrap; }
+.hero-price { font-size: 26px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+.hero-chg { font-size: 15px; font-variant-numeric: tabular-nums; }
+.hero-chg.up { color: var(--up); }
+.hero-chg.down { color: var(--down); }
+.hero-chart { position: relative; flex: 1 1 auto; min-height: 0; }
+/* the chart canvas fills its .hero-chart box */
+.chart-fill, #bt-eq-chart { position: absolute; inset: 0; }
+
+.tip {
+  position: absolute; pointer-events: none; z-index: 2;
+  background: #0a0e14; border: 1px solid var(--border); border-radius: var(--r-ctl);
+  padding: 5px 8px; font-size: 12px; color: var(--text); font-variant-numeric: tabular-nums;
+  white-space: nowrap; transform: translate(12px, -50%);
+}
+
+/* ---------------- Strategy / live parameter form ---------------- */
+/* Sections sit side by side and are sized to pack onto a single row. */
+.bt-params { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px 16px; }
+.sp-section { flex: 0 1 auto; display: flex; flex-direction: column; gap: 6px; }
+.sp-head {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px;
+  color: var(--muted); display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  padding-bottom: 5px; border-bottom: 1px solid var(--border);
+}
+.sp-hint { font-weight: 400; text-transform: none; letter-spacing: 0; opacity: .7; }
+.sp-grid { display: grid; grid-template-columns: repeat(var(--sp-cols, 1), max-content max-content); column-gap: 7px; row-gap: 6px; align-content: start; }
+.sp-field { display: contents; }
+.sp-lbl { font-size: 11.5px; color: var(--muted); white-space: nowrap; align-self: center; }
+.sp-in {
+  width: 66px; min-width: 0;
+  background: var(--panel-2); color: var(--text); border: 1px solid var(--border);
+  border-radius: var(--r-ctl); padding: 4px 6px; font-variant-numeric: tabular-nums; text-align: right;
+}
+.sp-in:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(76, 154, 255, .18); }
+select.sp-in { width: auto; max-width: 96px; text-align: left; cursor: pointer; }
+
+.bt-run { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+#bt-run-msg { font-size: 11.5px; }
+
+/* ---------------- Backtest results ---------------- */
+.bt-empty { color: var(--muted); padding: 24px 4px; font-size: 14px; }
+.bt-results { width: 100%; }
+.bt-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(148px, 1fr)); gap: 10px; margin-bottom: 4px; }
+.bt-tile {
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--r-tile);
+  padding: 11px 13px; display: flex; flex-direction: column; gap: 3px;
+}
+.bt-tile-v { font-size: 20px; font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1.15; }
+.bt-tile-v.up { color: var(--up); }
+.bt-tile-v.down { color: var(--down); }
+.bt-tile-l { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+.bt-results .hero { height: 320px; flex: none; margin-top: 16px; }
+.bt-trades-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+/* ---------------- Data tables (trades; strategy UIs reuse it) ---------------- */
+.data-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--r-panel); }
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th, .data-table td { padding: 7px 13px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--border); }
+.data-table thead th { color: var(--muted); font-weight: 600; background: var(--panel); }
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table th:first-child, .data-table td:first-child,
+.data-table th:nth-child(2), .data-table td:nth-child(2) { text-align: left; }
+.data-table td { font-variant-numeric: tabular-nums; }
+.data-table tbody tr:hover td { background: var(--panel-2); }
+
+/* Trades table (scrolls within a fixed height, sticky header) */
+.bt-table-wrap { overflow: auto; max-height: 460px; border: 1px solid var(--border); border-radius: var(--r-panel); }
+.bt-table th, .bt-table td { text-align: right; }
+.bt-table thead th { position: sticky; top: 0; z-index: 1; }
+.bt-table th:first-child, .bt-table td:first-child,
+.bt-table th:nth-child(2), .bt-table td:nth-child(2),
+.bt-table th:nth-child(3), .bt-table td:nth-child(3) { text-align: left; }
+.bt-table td.bt-long { color: var(--up); font-weight: 600; text-align: left; }
+.bt-table td.bt-short { color: var(--down); font-weight: 600; text-align: left; }
+/* The open trade: no exit yet — its exit price is the latest mark. */
+.bt-table .bt-open { color: var(--accent); font-weight: 600; }
+.bt-table th:nth-child(8), .bt-table td:nth-child(8),
+.bt-table th:nth-child(9), .bt-table td:nth-child(9) {
+  text-align: left; white-space: normal; max-width: 220px;
+  color: var(--muted); font-size: .92em;
+}
+
+/* ---------------- Status pill (Log) ---------------- */
+.pill { padding: 4px 12px; border-radius: 999px; font-size: 12px; border: 1px solid var(--border); }
+.pill.idle { color: var(--muted); }
+.pill.running { color: var(--up); border-color: #23472f; background: #10261a; }
+
+/* ---------------- Label/value metric rows ---------------- */
+/* Shared label/value rows (Live position panel; strategy UIs reuse them via
+   QT.ui.metricRow). */
+.live-metrics { display: grid; grid-template-columns: 1fr; gap: 0; }
+.live-metric {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+  padding: 8px 0; border-bottom: 1px solid rgba(255, 255, 255, .04);
+}
+.live-metric:last-child { border-bottom: none; }
+.live-metric-gap { height: 8px; margin-top: 4px; border-top: 1px solid var(--border); }
+.lm-lbl { font-size: 12px; color: var(--muted); white-space: nowrap; }
+.lm-val { font-size: 13px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; text-align: right; }
+.lm-val.up { color: var(--up); }
+.lm-val.down { color: var(--down); }
+.lm-val.dim { color: var(--muted); font-weight: 400; }
+
+/* ---------------- Log ---------------- */
+.log {
+  flex: 1 1 auto; min-height: 0; margin: 0; overflow: auto;
+  background: #0a0e14; border: 1px solid var(--border); border-radius: var(--r-panel);
+  padding: 12px; font: 12px/1.5 "Cascadia Code", Consolas, monospace; color: #c9d1d9;
+  white-space: pre-wrap; word-break: break-word;
+}
+.log .err { color: var(--down); }
+.log .sys { color: var(--accent); }
+
+/* ---------------- Live tab: one-screen grid ---------------- */
+/* Every Live region is a direct child of one grid (see index.html), so the
+   two panel rows line up across columns without subgrids. Every card shares
+   the same chrome — a fixed-height head (title · sub · actions/stat/caret)
+   over a body — so heads, gaps and type line up wherever they sit. Nothing on
+   the page scrolls: panel rows shrink and their bodies scroll, the trades
+   table shows as many whole rows as fit (renderer.js). */
+#tab-live { padding: 8px 12px 10px; }
+
+.lv-stale {
+  flex: 0 0 auto; margin-bottom: 8px; padding: 7px 12px; border-radius: var(--r-panel);
+  font-size: 13px; font-weight: 600; color: #ffcf7a;
+  background: rgba(240, 173, 78, .10); border: 1px solid rgba(240, 173, 78, .45);
+}
+
+.lv-grid {
+  --lv-gap: 8px;
+  flex: 1 1 auto; min-height: 0; display: grid; gap: var(--lv-gap);
+  /* The chart column is draggable (.lv-splitter): --chart-w is set in px by
+     the drag, clamped to at most half the grid. Default 2fr — beside the two
+     1fr columns that is half the width. */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(280px, var(--chart-w, 2fr));
+  /* signal | panel row "top" | panel row "bottom" | trades. The panel rows
+     can shrink (min 0, their bodies scroll) while the trades keep a minimum,
+     so a tall panel never pushes the trades off-screen. */
+  grid-template-rows: auto minmax(0, auto) minmax(0, auto) minmax(150px, 1fr);
+}
+.lv-hero                 { grid-row: 1;     grid-column: 1 / 3; }
+#live-strat-top          { grid-row: 2;     grid-column: 1; }
+#live-strat-bottom       { grid-row: 3;     grid-column: 1; }
+.lv-free                 { grid-row: 2 / 4; grid-column: 1; }
+#live-position-card      { grid-row: 2;     grid-column: 2; }
+#live-params-card        { grid-row: 3;     grid-column: 2; }
+.lv-trades               { grid-row: 4;     grid-column: 1 / 3; }
+.lv-side                 { grid-row: 1 / -1; grid-column: 3; }
+/* No strategy panels: the app's panels take the whole width of their row. One
+   strategy panel: it takes the top row, the parameters the bottom row. */
+/* Free-form strategy views follow the rows' height (set by the app's panels
+   beside them) and scroll inside, rather than holding the rows open. */
+.lv-free { position: relative; }
+.lv-free > .lv-body { position: absolute; inset: 0; }
+.lv-grid.lv-no-strat #live-position-card,
+.lv-grid.lv-no-strat #live-params-card,
+.lv-grid.lv-one-strat #live-params-card { grid-column: 1 / 3; }
+
+/* ---- Card chrome (shared by panels, trades and charts) ---- */
+.lv-card {
+  min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden;
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--r-panel);
+}
+.lv-head {
+  flex: 0 0 auto; height: 30px; display: flex; align-items: center; gap: 8px;
+  padding: 0 8px 0 12px; border-bottom: 1px solid var(--border);
+}
+.lv-title { flex: 0 0 auto; font-size: 12px; font-weight: 700; letter-spacing: .2px; color: var(--text); white-space: nowrap; }
+.lv-sub {
+  flex: 1 1 auto; min-width: 0; font-size: 11px; color: var(--muted);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.lv-sub.err { color: var(--down); }
+.lv-actions { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+.lv-actions .bt-dim { font-size: 11px; }
+.lv-btn { padding: 3px 10px; font-size: 11px; }
+.lv-stat { flex: 0 0 auto; display: flex; align-items: baseline; gap: 8px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.lv-stat-v { font-size: 14px; font-weight: 800; color: var(--text); }
+.lv-stat-chg { font-size: 12px; font-weight: 600; color: var(--muted); }
+.lv-stat-chg.up { color: var(--up); }
+.lv-stat-chg.down { color: var(--down); }
+.lv-body { flex: 1 1 auto; min-height: 0; overflow: auto; padding: 6px 12px 8px; }
+
+/* Collapse caret (every panel-row head). Folding a row hides both of its
+   cards' bodies; the row shrinks to its heads and the trades grow upward. */
+.lv-caret {
+  flex: 0 0 auto; width: 18px; height: 18px; padding: 0; margin-left: 2px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; border: 1px solid var(--border); border-radius: var(--r-ctl);
+  color: var(--muted); cursor: pointer; line-height: 1;
+}
+.lv-caret:hover { color: var(--text); border-color: var(--accent); }
+.lv-caret::before { content: '▾'; font-size: 9px; transition: transform .15s; }
+/* (#live-results, so it outranks bodies styled by id, e.g. #live-params) */
+#live-results.lv-collapse-top .lv-row-top > .lv-body,
+#live-results.lv-collapse-bottom .lv-row-bottom > .lv-body { display: none; }
+#live-results.lv-collapse-top .lv-row-top > .lv-head,
+#live-results.lv-collapse-bottom .lv-row-bottom > .lv-head { border-bottom-color: transparent; }
+#live-results.lv-collapse-top .lv-row-top .lv-caret::before,
+#live-results.lv-collapse-bottom .lv-row-bottom .lv-caret::before { transform: rotate(-90deg); }
+
+/* ---- Signal ---- */
+/* The text keeps at least 210px; the tiles sit to its right and, when the
+   card is too narrow for them all, wrap (right-aligned) rather than covering
+   the text. */
+.lv-hero {
+  min-width: 0; display: flex; align-items: center; gap: 12px;
+  padding: 8px 12px 8px 14px;
+  background: var(--panel); border: 1px solid var(--border);
+  border-left: 4px solid var(--muted); border-radius: var(--r-panel);
+}
+.lv-hero.live-long  { border-left-color: var(--up); }
+.lv-hero.live-short { border-left-color: var(--down); }
+.lv-hero-text { flex: 1 0 210px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.lv-sig-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.lv-sig-label { font-size: 10.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.lv-sig-top .pill { flex: 0 0 auto; padding: 1px 9px; font-size: 10.5px; }
+/* The signal, with its reason beside it on the same baseline. */
+.lv-sig-main { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.lv-sig-state { flex: 0 0 auto; font-size: 26px; font-weight: 800; line-height: 1.1; letter-spacing: .01em; color: var(--text); }
+.lv-sig-reason { min-width: 0; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lv-sig-state.live-long  { color: var(--up); }
+.lv-sig-state.live-short { color: var(--down); }
+.lv-sig-line { font-size: 11.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lv-sig-line b { color: var(--text); }
+/* The forming bar's signal — changes until the bar closes, never alerted. */
+.lv-sig-line.differs { color: var(--text); }
+.lv-sig-line.differs b.live-long  { color: var(--up); }
+.lv-sig-line.differs b.live-short { color: var(--down); }
+
+/* Tiles beside the signal (QT.live.tiles; QT.ui.liveTile builds one). */
+.lv-tiles { flex: 0 1 auto; min-width: 0; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; align-items: stretch; }
+.lv-tiles:empty { display: none; }
+.lv-tile {
+  flex: 0 0 auto; min-width: 78px; display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  padding: 5px 10px; background: var(--panel-2); border: 1px solid var(--border); border-radius: var(--r-tile);
+}
+.lv-tile-l { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
+.lv-tile-v { font-size: 18px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1.15; white-space: nowrap; }
+.lv-tile-v.up { color: var(--up); }
+.lv-tile-v.down { color: var(--down); }
+
+/* ---- Panels ---- */
+/* Every Live panel body is the same shape: rows of label-over-value cells
+   (QT.ui.kvRow of QT.ui.kv), a hairline between rows. Each label says what
+   its value is on its own, so no row captions are needed. */
+.lv-kvrow { display: flex; flex-wrap: wrap; gap: 3px 18px; padding: 5px 0; min-width: 0; }
+.lv-kvrow:first-child { padding-top: 0; }
+.lv-kvrow + .lv-kvrow { border-top: 1px solid rgba(255, 255, 255, .05); }
+/* The strategy's rows continue the app's rows in the same box. */
+#live-details > .lv-kvrow:first-child { padding-top: 5px; border-top: 1px solid rgba(255, 255, 255, .05); }
+.lv-kv { display: flex; flex-direction: column; min-width: 0; }
+.lv-kv-l { font-size: 10.5px; line-height: 1.3; color: var(--muted); white-space: nowrap; }
+.lv-kv-v {
+  font-size: 13px; font-weight: 600; line-height: 1.3; color: var(--text);
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.lv-kv-v.up { color: var(--up); }
+.lv-kv-v.down { color: var(--down); }
+.lv-kv-v.dim { color: var(--muted); font-weight: 400; }
+.lv-kv-v small { font-size: 11px; font-weight: 600; margin-left: 4px; }
+.lv-kv-v small.dim { color: var(--muted); font-weight: 400; }
+/* Older strategy UIs' label/value rows (QT.ui.metricRow), tightened. */
+.lv-grid .live-metric { padding: 3px 0; }
+.lv-grid .live-metric-gap { height: 3px; margin-top: 1px; }
+
+/* Live parameters (full width): each section is a unit — its label, then
+   its fields inline — and the units flow side by side, wrapping as whole
+   sections, so a wide panel takes the parameters in a line or two. */
+#live-params { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 28px; }
+#live-params .sp-section { flex-direction: row; align-items: center; gap: 12px; min-width: 0; max-width: 100%; }
+#live-params .sp-head {
+  padding: 0; border: 0; font-size: 10px; font-weight: 700; letter-spacing: .5px; white-space: nowrap;
+}
+#live-params .sp-grid { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; min-width: 0; }
+#live-params .sp-field { display: flex; align-items: center; gap: 6px; }
+#live-params .sp-lbl { font-size: 11.5px; }
+#live-params .sp-in { width: 52px; padding: 1px 5px; font-size: 11.5px; }
+#live-params select.sp-in { width: auto; max-width: 84px; }
+
+/* ---- Previous trades ---- */
+/* Whole rows only (renderer.js trims to fit); a too-narrow table scrolls
+   sideways rather than wrapping. */
+.lv-trades > .lv-body { padding: 0; overflow-x: auto; overflow-y: hidden; }
+.lv-trades .data-table th, .lv-trades .data-table td { padding: 4px 10px; white-space: nowrap; }
+.lv-trades .data-table thead th { position: static; }
+.lv-trades .data-table td.bt-reason { max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---- Chart column ---- */
+.lv-side { min-width: 0; min-height: 0; position: relative; display: flex; flex-direction: column; gap: var(--lv-gap); }
+.lv-chart { flex: 1 1 0; }
+.lv-chart-strat { flex-grow: 1.25; }
+.lv-chart-body { position: relative; overflow: hidden; padding: 0; }
+/* the chart canvas fills its card body */
+.lv-canvas { position: absolute; inset: 4px 4px 2px 8px; }
+/* Legend swatches for a chart head (strategy charts use them in their title). */
+.lv-legend { display: inline-flex; align-items: center; gap: 12px; }
+.lv-key { display: inline-flex; align-items: center; gap: 6px; }
+.lv-key::before { content: ''; width: 10px; height: 3px; border-radius: 2px; background: var(--key, var(--accent)); }
+
+/* Drag handle on the left edge of the chart column (over the grid gap). */
+.lv-splitter {
+  position: absolute; top: 0; bottom: 0; left: calc(-1 * var(--lv-gap) - 2px); width: calc(var(--lv-gap) + 4px); z-index: 5;
+  cursor: col-resize; display: flex; justify-content: center;
+}
+.lv-splitter::before { content: ''; width: 2px; border-radius: 2px; background: transparent; transition: background .12s; }
+.lv-splitter:hover::before, body.lv-resizing .lv-splitter::before { background: var(--accent); }
+body.lv-resizing { cursor: col-resize; user-select: none; }

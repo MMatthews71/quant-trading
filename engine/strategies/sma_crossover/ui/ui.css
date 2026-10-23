@@ -1,0 +1,43 @@
+/* SMA Crossover — styling for the strategy's own Live and Input views.
+   Scoped to .sma-* classes so it never collides with the generic app CSS. */
+
+/* Live — range buttons in the head of the app's chart card */
+.sma-ranges { display: inline-flex; gap: 3px; }
+.sma-ranges button {
+  background: transparent;
+  border: 1px solid #2a3340;
+  color: #8b949e;
+  border-radius: 6px;
+  padding: 1px 7px;
+  cursor: pointer;
+  font-size: 11px;
+}
+.sma-ranges button.active { color: #c9d1d9; border-color: #4f9bff; }
+
+/* Input tab — holidays editor */
+.sma-input { max-width: 640px; }
+.sma-input h3 { margin: 4px 0 2px; color: #c9d1d9; }
+.sma-hint { color: #8b949e; font-size: 13px; margin: 0 0 12px; }
+.sma-holiday-form { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.sma-holiday-form input {
+  background: #0d1117;
+  border: 1px solid #2a3340;
+  border-radius: 6px;
+  color: #c9d1d9;
+  padding: 6px 8px;
+}
+.sma-holiday-form input[type="text"] { flex: 1; min-width: 180px; }
+.sma-holiday-form button,
+.sma-del {
+  background: #1f6feb;
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+.sma-del { background: #30363d; padding: 3px 10px; font-size: 12px; }
+.sma-del:hover { background: #6e2a2a; }
+.sma-hol-msg { min-height: 18px; font-size: 13px; color: #8b949e; margin-bottom: 8px; }
+.sma-hol-msg.err { color: #f85149; }
+.sma-empty { color: #8b949e; font-style: italic; }

@@ -1,0 +1,25 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# --- Node / Electron app ---
+app/node_modules/
+
+# --- secrets (never commit) ---
+engine/strategies/*/telegram_credentials.py
+engine/telegram_config.json
+
+# --- generated inside each strategy's data/ folder (rebuilt automatically) ---
+engine/strategies/*/data/*.log
+engine/strategies/*/data/*.tmp
+engine/strategies/*/*.tmp
+engine/strategies/*/data/backtest.json
+engine/strategies/*/data/live_signal.json
+engine/strategies/*/data/live_tail.json
+engine/strategies/*/data/live_alert_state.json
+engine/strategies/*/data/live_alerts.lock
+
+# A strategy's data/quant.db is its market data, kept current by `quant.py update`.
+# It can be large; untrack it here if you don't want it in version control:
+# engine/strategies/*/data/quant.db

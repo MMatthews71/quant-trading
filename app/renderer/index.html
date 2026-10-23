@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;" />
+  <title>Quant Trading</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Top level: one tab per strategy (labelled with its manifest "symbol").
+       Everything below the sub-tab bar belongs to that strategy. -->
+  <!-- One header row: the strategy's tab, then its sub-tabs. Live / Backtest /
+       Log are generic; the strategy's ui/ui.js adds its own views to Live and
+       fills Input (shown only then). -->
+  <header class="topbar">
+    <nav class="tabs" id="strategy-tabs">
+      <button class="tab active" id="strategy-tab"></button>
+    </nav>
+    <span class="topbar-sep"></span>
+    <nav class="tabs subtabs" id="subtabs">
+      <button class="tab active" data-tab="live">Live</button>
+      <button class="tab" data-tab="backtest">Backtest</button>
+      <button class="tab" data-tab="input" hidden>Input</button>
+      <button class="tab" data-tab="log">Log</button>
+    </nav>
+  </header>
+
+  <!-- ---------------- Live tab ---------------- -->
+  <!-- Current signal off the latest price, computed by `quant.py live` (reuses
+       the backtest math) with its OWN parameter set (live_params.json), and
+       recomputed on every new live price. One screen, nothing scrolls:
+
+         | signal + strategy tiles             | strategy chart  |
+         | strategy panel 1 | Position & perf. |                 |
+         | strategy panel 2 | Live parameters  | Profit and loss |
+         | Previous trades (as many as fit)    |                 |
+
+       Every card is a direct child of the grid, so the two panel rows line up
+       across columns. Each panel row folds to its headers (caret), handing the
+       room to the trades; the chart column is draggable up to half the width.
+       The strategy's ui.js fills its parts through QT.live (renderer.js). -->
+  <section id="tab-live" class="tabpane active">
+    <!-- Warns when the data feed has gone quiet (the updater/API isn't pushing
+         fresh prices), so a stale signal isn't mistaken for a live one. -->
+    <div id="live-stale" class="lv-stale" hidden></div>
+
+    <div id="live-empty" class="bt-empty" hidden></div>
+
+    <div id="live-results" class="lv-grid hidden">
+      <!-- The signal, with the strategy's tiles beside it (QT.live.tiles). -->
+      <div class="lv-hero" id="live-signal-card">
+        <div class="lv-hero-text">
+          <!-- The market state · the signal and why · which price it is off
+               and when it was computed. -->
+          <div class="lv-sig-top">
+            <span class="lv-sig-label">Signal</span>
+            <span id="live-market-pill" class="pill idle">—</span>
+          </div>
+          <div class="lv-sig-main">
+            <span class="lv-sig-state" id="live-sig-state">—</span>
+            <span class="lv-sig-reason" id="live-sig-reason" title="Reason"></span>
+          </div>
+          <div class="lv-sig-line" id="live-provisional" hidden></div>
+          <div class="lv-sig-line" id="live-updated"></div>
+          <div class="lv-sig-line" id="live-computed"></div>
+        </div>
+        <div class="lv-tiles" id="live-tiles"></div>
+      </div>
+
+      <!-- The strategy's two panels (QT.live.panel), one per panel row. -->
+      <section class="lv-card lv-strat lv-row-top" id="live-strat-top" hidden>
+        <div class="lv-head">
+          <span class="lv-title"></span><span class="lv-sub"></span>
+          <button class="lv-caret" type="button" data-row="top" title="Collapse / expand this row" aria-label="Collapse or expand this row"></button>
+        </div>
+        <div class="lv-body"></div>
+      </section>
+      <section class="lv-card lv-strat lv-row-bottom" id="live-strat-bottom" hidden>
+        <div class="lv-head">
+          <span class="lv-title"></span><span class="lv-sub"></span>
+          <button class="lv-caret" type="button" data-row="bottom" title="Collapse / expand this row" aria-label="Collapse or expand this row"></button>
+        </div>
+        <div class="lv-body"></div>
+      </section>
+      <!-- Free-form strategy views (whatever ui.js mounts into its element),
+           shown across both panel rows when it claims no panels. -->
+      <section class="lv-card lv-free" id="live-free" hidden>
+        <div class="lv-body" id="live-strategy"></div>
+      </section>
+
+      <!-- Where you stand (and, from the strategy via QT.live.details, the
+           market context the signal depends on), and the tunable inputs. -->
+      <section class="lv-card lv-row-top" id="live-position-card">
+        <div class="lv-head">
+          <span class="lv-title">Position &amp; performance</span><span class="lv-sub"></span>
+          <button class="lv-caret" type="button" data-row="top" title="Collapse / expand this row" aria-label="Collapse or expand this row"></button>
+        </div>
+        <div class="lv-body">
+          <div id="live-position"></div>
+          <div id="live-details" hidden></div>
+        </div>
+      </section>
+      <section class="lv-card lv-row-bottom" id="live-params-card">
+        <div class="lv-head">
+          <span class="lv-title">Live parameters</span><span class="lv-sub" id="live-params-msg"></span>
+          <button class="lv-caret" type="button" data-row="bottom" title="Collapse / expand this row" aria-label="Collapse or expand this row"></button>
+        </div>
+        <div class="lv-body" id="live-params"></div>
+      </section>
+
+      <!-- Trade history: as many of the newest trades as fit. -->
+      <section class="lv-card lv-trades">
+        <div class="lv-head">
+          <span class="lv-title">Previous trades</span><span class="lv-sub" id="live-trades-count"></span>
+          <span class="lv-actions">
+            <span id="live-export-msg" class="bt-dim"></span>
+            <button id="live-export" class="btn-secondary lv-btn" type="button" title="Save every bar and every column of the live recompute as a CSV">Export CSV</button>
+          </span>
+        </div>
+        <div class="lv-body" id="live-trades-box"><table id="live-table" class="data-table bt-table"></table></div>
+      </section>
+
+      <!-- The strategy's chart (QT.live.chart) over the profit and loss curve. -->
+      <div class="lv-side">
+        <div class="lv-splitter" id="live-splitter" title="Drag to resize the chart column · double-click to reset"></div>
+        <section class="lv-card lv-chart lv-chart-strat" id="live-strat-chart" hidden>
+          <div class="lv-head"><span class="lv-title"></span><span class="lv-sub"></span><span class="lv-stat"></span></div>
+          <div class="lv-body lv-chart-body"></div>
+        </section>
+        <section class="lv-card lv-chart" id="live-eq-card" hidden>
+          <div class="lv-head">
+            <span class="lv-title">Profit and loss curve</span><span class="lv-sub" id="live-eq-sub"></span>
+            <span class="lv-stat" id="live-eq-stat"></span>
+          </div>
+          <div class="lv-body lv-chart-body">
+            <div class="lv-canvas" id="live-eq-chart"></div>
+            <div id="live-eq-tip" class="tip hidden"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------- Backtest tab ---------------- -->
+  <!-- Read-only viewer of the strategy's data/backtest.json,
+       plus the tunable strategy inputs. Inputs are edited here, saved to
+       the strategy's backtest_params.json, read by `quant.py backtest`. -->
+  <section id="tab-backtest" class="tabpane">
+    <div class="page-head">
+      <div class="page-titles">
+        <h1 class="page-title">Backtest</h1>
+      </div>
+    </div>
+
+    <div class="pane-scroll">
+      <div class="panel">
+        <div class="panel-head">
+          <span class="panel-title">Strategy parameters</span>
+          <span id="bt-params-msg" class="bt-dim"></span>
+        </div>
+        <div id="bt-params" class="bt-params"></div>
+        <div class="bt-run">
+          <button id="bt-run" class="primary">Run backtest</button>
+          <span id="bt-run-msg" class="bt-dim"></span>
+        </div>
+      </div>
+
+      <div id="bt-empty" class="bt-empty" hidden></div>
+
+      <div id="bt-results" class="bt-results hidden">
+        <div class="bt-stats" id="bt-stats"></div>
+        <div class="hero">
+          <div class="hero-head">
+            <div class="hero-titles">
+              <span class="hero-title">Profit and loss curve</span>
+              <span class="hero-sub" id="bt-eq-sub"></span>
+            </div>
+            <div class="hero-stat" id="bt-eq-stat"></div>
+          </div>
+          <div class="hero-chart">
+            <div id="bt-eq-chart"></div>
+            <div id="bt-eq-tip" class="tip hidden"></div>
+          </div>
+        </div>
+        <div class="section-label bt-trades-head">
+          <span>Trades <span id="bt-trades-count" class="bt-dim"></span></span>
+          <span class="bt-export-wrap">
+            <span id="bt-export-msg" class="bt-dim"></span>
+            <button id="bt-export" class="btn-secondary" type="button" title="Save every bar and every column of the last backtest as a CSV">Export CSV</button>
+          </span>
+        </div>
+        <div class="bt-table-wrap"><table id="bt-table" class="data-table bt-table"></table></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------------- Input tab ---------------- -->
+  <!-- The strategy's hand-maintained inputs, built entirely by its ui/ui.js. -->
+  <section id="tab-input" class="tabpane">
+    <div class="page-head">
+      <div class="page-titles">
+        <h1 class="page-title">Input</h1>
+      </div>
+    </div>
+    <div class="pane-scroll" id="input-root"></div>
+  </section>
+
+  <!-- ---------------- Log tab ---------------- -->
+  <section id="tab-log" class="tabpane">
+    <div class="page-head">
+      <div class="page-titles">
+        <h1 class="page-title">Log</h1>
+      </div>
+      <span id="updater-state" class="pill idle">stopped</span>
+    </div>
+
+    <div class="controls">
+      <button id="start" class="primary">Start updater</button>
+      <button id="stop" class="danger" disabled>Stop updater</button>
+      <label class="ctl autoscroll">
+        <input type="checkbox" id="autoscroll" checked /><span>Auto-scroll</span>
+      </label>
+      <button id="clearlog" class="ghost">Clear</button>
+    </div>
+    <pre id="log" class="log"></pre>
+  </section>
+
+  <script src="../node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>
